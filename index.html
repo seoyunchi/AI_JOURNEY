@@ -239,6 +239,19 @@
         0 0 24px rgba(34, 211, 238, 0.35),
         0 4px 16px rgba(0, 0, 0, 0.35);
       transition: transform 0.2s ease, box-shadow 0.25s ease, filter 0.2s ease;
+      animation: contactIntroShake 1.05s cubic-bezier(0.36, 0.07, 0.19, 0.97) 1 forwards;
+    }
+
+    @keyframes contactIntroShake {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      12% { transform: translate(-4px, 1px) rotate(-0.65deg); }
+      24% { transform: translate(4px, -1px) rotate(0.65deg); }
+      36% { transform: translate(-3px, 0) rotate(-0.4deg); }
+      48% { transform: translate(3px, 1px) rotate(0.4deg); }
+      60% { transform: translate(-2px, 0) rotate(-0.25deg); }
+      72% { transform: translate(2px, 0) rotate(0.2deg); }
+      84% { transform: translate(-1px, 0) rotate(-0.1deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
     }
 
     .contact-btn:hover {
@@ -324,12 +337,32 @@
       let w = 0;
       let h = 0;
       let raf = 0;
+      let targetMx = 0;
+      let targetMy = 0;
+      let smoothMx = 0;
+      let smoothMy = 0;
+
+      function syncMouseAnchors() {
+        targetMx = smoothMx = w * 0.5;
+        targetMy = smoothMy = h * 0.5;
+      }
+
+      window.addEventListener(
+        "mousemove",
+        function (e) {
+          const dpr = window.devicePixelRatio;
+          targetMx = e.clientX * dpr;
+          targetMy = e.clientY * dpr;
+        },
+        { passive: true }
+      );
 
       function resize() {
         w = canvas.width = Math.floor(window.innerWidth * window.devicePixelRatio);
         h = canvas.height = Math.floor(window.innerHeight * window.devicePixelRatio);
         canvas.style.width = window.innerWidth + "px";
         canvas.style.height = window.innerHeight + "px";
+        syncMouseAnchors();
         initParticles();
       }
 
@@ -352,8 +385,33 @@
       function step() {
         ctx.clearRect(0, 0, w, h);
         const t = performance.now() * 0.00015;
+        const dpr = window.devicePixelRatio;
+        smoothMx += (targetMx - smoothMx) * 0.1;
+        smoothMy += (targetMy - smoothMy) * 0.1;
+        const maxInfluence = 420 * dpr;
+        const maxSpeed = 1.35 * dpr;
 
         for (const p of particles) {
+          const dx = smoothMx - p.x;
+          const dy = smoothMy - p.y;
+          const dist = Math.hypot(dx, dy) || 1;
+          if (dist < maxInfluence) {
+            const falloff = 1 - dist / maxInfluence;
+            const pull = falloff * falloff * 0.022 * (0.45 + p.z * 0.55);
+            p.vx += (dx / dist) * pull;
+            p.vy += (dy / dist) * pull;
+          }
+
+          const sp = Math.hypot(p.vx, p.vy);
+          if (sp > maxSpeed) {
+            const s = maxSpeed / sp;
+            p.vx *= s;
+            p.vy *= s;
+          }
+
+          p.vx *= 0.9992;
+          p.vy *= 0.9992;
+
           p.x += p.vx + Math.sin(t + p.z * 10) * 0.08;
           p.y += p.vy + Math.cos(t * 0.8 + p.z * 8) * 0.08;
 
@@ -414,6 +472,13 @@
         }
       });
     })();
+  </script>
+  <script>
+    document.querySelector(".contact-btn").addEventListener("animationend", function (e) {
+      if (e.animationName === "contactIntroShake") {
+        this.style.animation = "none";
+      }
+    });
   </script>
 </body>
 </html>
