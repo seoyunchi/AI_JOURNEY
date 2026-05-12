@@ -1,0 +1,2408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MY AI LAB — AI Pharma Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600&family=Outfit:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #030818;
+      --bg-mid: #071225;
+      --accent: #38bdf8;
+      --accent-deep: #0ea5e9;
+      --accent-soft: rgba(56, 189, 248, 0.38);
+      --violet: #818cf8;
+      --text: #e8eef7;
+      --text-muted: #8b9cb8;
+      --card-border: rgba(255, 255, 255, 0.09);
+      --card-glow: rgba(56, 189, 248, 0.14);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: "Outfit", "Noto Sans SC", system-ui, sans-serif;
+      background: radial-gradient(ellipse 120% 80% at 50% 0%, #0c1a33 0%, var(--bg-deep) 55%);
+      color: var(--text);
+      min-height: 100vh;
+      position: relative;
+    }
+
+    body.lang-zh {
+      font-family: "Noto Sans SC", "Outfit", system-ui, sans-serif;
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    #particles {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .ambient {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 85% 55% at 50% -15%, rgba(56, 189, 248, 0.14), transparent),
+        radial-gradient(ellipse 55% 45% at 100% 40%, rgba(99, 102, 241, 0.1), transparent),
+        radial-gradient(ellipse 50% 35% at 0% 85%, rgba(14, 165, 233, 0.08), transparent);
+    }
+
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(ellipse 80% 70% at 50% 35%, black 15%, transparent 72%);
+    }
+
+    .site-main {
+      position: relative;
+      z-index: 10;
+    }
+
+    .site-stages {
+      position: relative;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow: hidden;
+    }
+
+    .stage {
+      position: absolute;
+      inset: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      z-index: 0;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(28px);
+      transition:
+        opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+        visibility 0s linear 0.55s;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .stage.is-active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      transition:
+        opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+        visibility 0s linear 0s;
+      z-index: 3;
+    }
+
+    .stage.is-exit {
+      opacity: 0;
+      transform: translateY(-32px);
+      transition:
+        opacity 0.5s cubic-bezier(0.4, 0, 1, 1),
+        transform 0.55s cubic-bezier(0.4, 0, 1, 1),
+        visibility 0s linear 0.5s;
+      pointer-events: none;
+    }
+
+    .stage-nav {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0.85rem 1rem 0.5rem;
+      margin: -0.25rem 0 0.5rem;
+      background: linear-gradient(180deg, rgba(3, 8, 24, 0.92) 70%, transparent);
+      backdrop-filter: blur(8px);
+    }
+
+    .stage-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.55rem 1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      font-family: "Syne", "Noto Sans SC", sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color 0.25s ease, background 0.25s ease, transform 0.2s ease;
+    }
+
+    .stage-back:hover {
+      border-color: rgba(56, 189, 248, 0.45);
+      background: rgba(56, 189, 248, 0.1);
+      transform: translateX(-2px);
+    }
+
+    .stage-next {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: min(100%, 380px);
+      margin: 2rem auto 0;
+      padding: 1rem 1.35rem;
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      border-radius: 14px;
+      cursor: pointer;
+      font-family: "Syne", "Noto Sans SC", sans-serif;
+      font-weight: 700;
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: transparent;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.1);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+    }
+
+    .stage-next:hover {
+      transform: translateY(-2px);
+      background: rgba(56, 189, 248, 0.1);
+      border-color: rgba(56, 189, 248, 0.8);
+      box-shadow: 0 0 32px rgba(56, 189, 248, 0.25), 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .stage--hero {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    .stage--hero .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      padding: 2rem 1rem 1rem;
+    }
+
+    .stage--hero .stage-next {
+      flex-shrink: 0;
+      margin: 3.75rem auto 1.75rem;
+    }
+
+    .hero {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem 1rem;
+      position: relative;
+    }
+
+    .hero-inner {
+      width: min(92vw, 620px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(2rem, 5vw, 3rem);
+    }
+
+    .lab-title {
+      font-family: "Syne", sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.5rem, 8vw, 4rem);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin: 0;
+      text-align: center;
+      line-height: 1.05;
+      color: #fafafa;
+      text-shadow:
+        0 0 20px var(--accent-soft),
+        0 0 40px rgba(34, 211, 238, 0.25),
+        0 0 80px rgba(167, 139, 250, 0.2),
+        0 0 120px rgba(34, 211, 238, 0.1);
+      animation: titlePulse 4s ease-in-out infinite;
+    }
+
+    @keyframes titlePulse {
+      0%, 100% {
+        filter: brightness(1);
+        text-shadow:
+          0 0 20px var(--accent-soft),
+          0 0 40px rgba(34, 211, 238, 0.25),
+          0 0 80px rgba(167, 139, 250, 0.15);
+      }
+      50% {
+        filter: brightness(1.08);
+        text-shadow:
+          0 0 28px rgba(34, 211, 238, 0.5),
+          0 0 56px rgba(34, 211, 238, 0.3),
+          0 0 100px rgba(167, 139, 250, 0.25);
+      }
+    }
+
+    .title-sub {
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 0.75rem;
+      opacity: 0.9;
+    }
+
+    .profile-card {
+      width: 100%;
+      padding: clamp(2rem, 5vw, 2.75rem);
+      border-radius: 20px;
+      background: linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.06) 0%,
+        rgba(255, 255, 255, 0.02) 100%
+      );
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+        0 24px 48px -12px rgba(0, 0, 0, 0.5),
+        0 0 80px -20px var(--card-glow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(34, 211, 238, 0.5),
+        rgba(167, 139, 250, 0.4),
+        transparent
+      );
+    }
+
+    .profile-card::after {
+      content: "";
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      top: -80px;
+      right: -80px;
+      background: radial-gradient(circle, rgba(34, 211, 238, 0.12), transparent 70%);
+      pointer-events: none;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .name {
+      font-family: "Syne", sans-serif;
+      font-weight: 700;
+      font-size: clamp(1.75rem, 5vw, 2.25rem);
+      letter-spacing: -0.02em;
+      margin: 0 0 0.5rem;
+      background: linear-gradient(135deg, #fafafa 0%, #a1a1aa 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .role {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.25rem;
+    }
+
+    .bio {
+      font-size: 0.98rem;
+      font-weight: 400;
+      line-height: 1.8;
+      color: var(--text-muted);
+      margin: 0;
+      min-height: 8.8em;
+    }
+
+    .bio-type {
+      color: var(--text-muted);
+    }
+
+    .bio-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1.05em;
+      margin-left: 3px;
+      background: var(--accent);
+      vertical-align: -0.12em;
+      box-shadow: 0 0 10px var(--accent);
+      animation: cursorBlink 0.75s step-end infinite;
+    }
+
+    .bio-cursor.is-done {
+      animation: cursorBlinkSoft 1.1s ease-in-out infinite;
+    }
+
+    @keyframes cursorBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    @keyframes cursorBlinkSoft {
+      0%, 100% { opacity: 0.85; }
+      50% { opacity: 0.25; }
+    }
+
+    .contact-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      margin-top: 1.25rem;
+      padding: 0.9rem 1.25rem;
+      border-radius: 12px;
+      font-family: "Syne", sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #0a0a12;
+      background: linear-gradient(135deg, #22d3ee 0%, #67e8f9 45%, #a5f3fc 100%);
+      border: none;
+      cursor: pointer;
+      box-shadow:
+        0 0 24px rgba(34, 211, 238, 0.35),
+        0 4px 16px rgba(0, 0, 0, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.25s ease, filter 0.2s ease;
+      animation: contactIntroShake 1.05s cubic-bezier(0.36, 0.07, 0.19, 0.97) 1 forwards;
+    }
+
+    @keyframes contactIntroShake {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      12% { transform: translate(-4px, 1px) rotate(-0.65deg); }
+      24% { transform: translate(4px, -1px) rotate(0.65deg); }
+      36% { transform: translate(-3px, 0) rotate(-0.4deg); }
+      48% { transform: translate(3px, 1px) rotate(0.4deg); }
+      60% { transform: translate(-2px, 0) rotate(-0.25deg); }
+      72% { transform: translate(2px, 0) rotate(0.2deg); }
+      84% { transform: translate(-1px, 0) rotate(-0.1deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+
+    .contact-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+      box-shadow:
+        0 0 36px rgba(34, 211, 238, 0.5),
+        0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .contact-btn:active {
+      transform: translateY(0);
+    }
+
+    .contact-btn svg {
+      width: 1rem;
+      height: 1rem;
+      opacity: 0.85;
+    }
+
+    .card-footer {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+      animation: blink 2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.45; }
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      color: var(--text-muted);
+      font-size: 0.65rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      text-decoration: none;
+      opacity: 0.75;
+      transition: opacity 0.25s ease, color 0.25s ease;
+      z-index: 11;
+    }
+
+    .scroll-hint:hover {
+      opacity: 1;
+      color: var(--accent);
+    }
+
+    .scroll-hint__chev {
+      width: 22px;
+      height: 22px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(8px);
+      animation: scrollBounce 2.2s ease-in-out infinite;
+    }
+
+    .scroll-hint__chev svg {
+      width: 12px;
+      height: 12px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    @keyframes scrollBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(5px); }
+    }
+
+    .stage--discovery {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    .stage--discovery #discovery {
+      flex: 1;
+    }
+
+    .stage--discovery .stage-next {
+      flex-shrink: 0;
+      margin: 2rem auto 2.25rem;
+    }
+
+    .stage--discovery .section-discovery {
+      padding: 0 1.25rem clamp(2.5rem, 6vh, 4rem);
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    .section-discovery {
+      padding: clamp(3rem, 8vw, 5rem) 1.25rem 5rem;
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    .section-discovery__head {
+      text-align: center;
+      margin-bottom: clamp(2rem, 5vw, 3rem);
+    }
+
+    .section-discovery__title {
+      font-family: "Syne", sans-serif;
+      font-weight: 700;
+      font-size: clamp(1.65rem, 4.5vw, 2.35rem);
+      letter-spacing: 0.04em;
+      margin: 0 0 0.75rem;
+      color: #fafafa;
+      text-shadow: 0 0 40px rgba(34, 211, 238, 0.12);
+    }
+
+    .section-discovery__lead {
+      margin: 0 auto;
+      max-width: 520px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .discovery-card__idx {
+      font-family: "Syne", sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      opacity: 0.85;
+      margin-bottom: 0.65rem;
+    }
+
+    .discovery-card__title {
+      font-family: "Syne", sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.6rem;
+      color: #f4f4f5;
+    }
+
+    .discovery-card__text {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: var(--text-muted);
+    }
+
+    .contact-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      background: rgba(2, 2, 8, 0.72);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+
+    .contact-backdrop.is-open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .contact-modal {
+      width: min(100%, 420px);
+      padding: 1.75rem 1.5rem 1.5rem;
+      border-radius: 18px;
+      background: linear-gradient(
+        160deg,
+        rgba(255, 255, 255, 0.08) 0%,
+        rgba(255, 255, 255, 0.03) 100%
+      );
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+        0 28px 64px -20px rgba(0, 0, 0, 0.65),
+        0 0 80px -24px rgba(34, 211, 238, 0.2);
+      transform: scale(0.94) translateY(12px);
+      opacity: 0;
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+    }
+
+    .contact-backdrop.is-open .contact-modal {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+
+    .contact-modal__top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .contact-modal__label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 0.35rem;
+    }
+
+    .contact-modal__title {
+      font-family: "Syne", sans-serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin: 0;
+      color: #fafafa;
+    }
+
+    .contact-modal__close {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .contact-modal__close:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      border-color: rgba(255, 255, 255, 0.16);
+    }
+
+    .contact-modal__row {
+      display: flex;
+      align-items: stretch;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .contact-modal__email {
+      flex: 1 1 180px;
+      min-width: 0;
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      font-family: ui-monospace, "Cascadia Code", "Consolas", monospace;
+      font-size: 0.82rem;
+      color: var(--text);
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      word-break: break-all;
+      line-height: 1.45;
+    }
+
+    .contact-modal__copy {
+      flex: 0 0 auto;
+      padding: 0.85rem 1.15rem;
+      border-radius: 12px;
+      font-family: "Syne", sans-serif;
+      font-weight: 600;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 1px solid rgba(34, 211, 238, 0.35);
+      color: var(--accent);
+      background: rgba(34, 211, 238, 0.08);
+      transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .contact-modal__copy:hover {
+      background: rgba(34, 211, 238, 0.14);
+      border-color: rgba(34, 211, 238, 0.55);
+      box-shadow: 0 0 20px rgba(34, 211, 238, 0.15);
+    }
+
+    .contact-modal__copy.is-copied {
+      border-color: rgba(167, 250, 200, 0.45);
+      color: #86efac;
+      background: rgba(34, 197, 94, 0.12);
+    }
+
+    .contact-modal__hint {
+      margin: 1rem 0 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .lang-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 300;
+      display: flex;
+      border-radius: 999px;
+      padding: 3px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+      border: 1px solid var(--card-border);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .lang-toggle button {
+      font-family: "Syne", "Noto Sans SC", sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 0.5rem 0.85rem;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      color: var(--text-muted);
+      background: transparent;
+      transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .lang-toggle button.is-active {
+      color: #041018;
+      background: linear-gradient(135deg, var(--accent) 0%, #7dd3fc 100%);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.35);
+    }
+
+    .section-discovery__mega {
+      font-family: "Syne", sans-serif;
+      font-size: clamp(0.7rem, 1.4vw, 0.8rem);
+      font-weight: 700;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 0.65rem;
+      opacity: 0.95;
+    }
+
+    .section-discovery__title--xl {
+      font-family: "Syne", sans-serif;
+      font-weight: 800;
+      font-size: clamp(2rem, 6.5vw, 3.75rem);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin: 0 0 1rem;
+      color: #f8fafc;
+      text-shadow: 0 0 60px rgba(56, 189, 248, 0.18);
+    }
+
+    .discovery-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 1.35rem;
+      justify-items: center;
+    }
+
+    .discovery-card {
+      position: relative;
+      text-align: left;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      padding: 1.5rem 1.35rem 1.4rem;
+      border-radius: 18px;
+      background: linear-gradient(
+        155deg,
+        rgba(255, 255, 255, 0.06) 0%,
+        rgba(255, 255, 255, 0.02) 100%
+      );
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--card-border);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+        0 16px 40px -16px rgba(0, 0, 0, 0.45);
+      overflow: hidden;
+      font: inherit;
+      color: inherit;
+      opacity: 0;
+      transform: translateY(110px) scale(0.94);
+      transition:
+        opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+
+    .discovery-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.4), transparent);
+      opacity: 0.75;
+      pointer-events: none;
+    }
+
+    .discovery-grid.is-revealed .discovery-card {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .discovery-grid.is-revealed .discovery-card:nth-child(1) { transition-delay: 0.2s; }
+    .discovery-grid.is-revealed .discovery-card:nth-child(2) { transition-delay: 0.4s; }
+    .discovery-grid.is-revealed .discovery-card:nth-child(3) { transition-delay: 0.6s; }
+    .discovery-grid.is-revealed .discovery-card:nth-child(4) { transition-delay: 0.8s; }
+
+    .discovery-grid.is-revealed .discovery-card:nth-child(1) { animation: cardFloat 5s ease-in-out 1s infinite; }
+    .discovery-grid.is-revealed .discovery-card:nth-child(2) { animation: cardFloat 5.2s ease-in-out 1.15s infinite; }
+    .discovery-grid.is-revealed .discovery-card:nth-child(3) { animation: cardFloat 5.4s ease-in-out 1.3s infinite; }
+    .discovery-grid.is-revealed .discovery-card:nth-child(4) { animation: cardFloat 5.1s ease-in-out 1.45s infinite; }
+
+    @keyframes cardFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .discovery-card:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .discovery-card:hover {
+      border-color: rgba(56, 189, 248, 0.22);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+        0 22px 52px -14px rgba(0, 0, 0, 0.55),
+        0 0 60px -15px rgba(56, 189, 248, 0.25);
+      transform: scale(1.02);
+    }
+
+    .discovery-card__top {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .discovery-card__icon {
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      color: var(--accent);
+    }
+
+    .discovery-card__icon svg {
+      width: 26px;
+      height: 26px;
+    }
+
+    .discovery-card__cta {
+      display: block;
+      margin-top: 1rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.85;
+    }
+
+    .page-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 240;
+      background: rgba(2, 8, 22, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+
+    .page-overlay.is-open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .page-overlay__inner {
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: clamp(1rem, 3vw, 2rem);
+      padding-bottom: 3rem;
+    }
+
+    .page-overlay__shell {
+      max-width: 800px;
+      margin: 0 auto;
+      border-radius: 20px;
+      border: 1px solid var(--card-border);
+      background: linear-gradient(165deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04) inset, 0 32px 64px -24px rgba(0, 0, 0, 0.55);
+      padding: clamp(1.25rem, 3vw, 2rem);
+    }
+
+    .page-overlay__bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .page-overlay__badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .page-overlay__close {
+      flex-shrink: 0;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .page-overlay__close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .page-overlay__title {
+      font-family: "Syne", sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      margin: 0 0 0.75rem;
+      line-height: 1.15;
+      color: #f8fafc;
+    }
+
+    .page-overlay__lead {
+      margin: 0 0 1.5rem;
+      font-size: 1rem;
+      line-height: 1.65;
+      color: var(--text-muted);
+    }
+
+    .page-overlay__section-label {
+      font-family: "Syne", sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 1.75rem 0 0.65rem;
+    }
+
+    .page-overlay__prose {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: var(--text-muted);
+    }
+
+    .page-overlay__prose p {
+      margin: 0 0 1rem;
+    }
+
+    .ref-block {
+      margin-top: 1rem;
+      padding: 1rem 1.1rem;
+      border-radius: 12px;
+      border-left: 3px solid var(--accent);
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-left-width: 3px;
+    }
+
+    .ref-block cite {
+      display: block;
+      font-size: 0.72rem;
+      font-style: normal;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .ref-block q {
+      display: block;
+      quotes: "“" "”";
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: var(--text);
+    }
+
+    .ref-list {
+      margin: 1.25rem 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ref-list li {
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: var(--text-muted);
+      padding: 0.45rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .ref-list li:last-child {
+      border-bottom: none;
+    }
+
+    .ref-list strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .stage--conclusion {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    .stage--conclusion .conclusion-wrap {
+      flex: 1;
+      margin-top: 0.5rem;
+    }
+
+    .conclusion-wrap {
+      max-width: 920px;
+      margin: 0 auto;
+      padding-bottom: 2rem;
+      position: relative;
+      border-radius: 24px;
+      border: 1px solid var(--card-border);
+      background:
+        linear-gradient(165deg, rgba(56, 189, 248, 0.08) 0%, rgba(3, 12, 32, 0.92) 38%, rgba(3, 8, 24, 0.96) 100%),
+        repeating-linear-gradient(90deg, transparent, transparent 47px, rgba(56, 189, 248, 0.04) 47px, rgba(56, 189, 248, 0.04) 48px),
+        repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(56, 189, 248, 0.03) 31px, rgba(56, 189, 248, 0.03) 32px);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05) inset, 0 36px 72px -28px rgba(0, 0, 0, 0.55);
+      overflow: hidden;
+    }
+
+    .conclusion-wrap::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), rgba(129, 140, 248, 0.6), transparent);
+      opacity: 0.85;
+    }
+
+    .mission-pulse-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: clamp(1.5rem, 4vw, 2.5rem) 1rem 0.5rem;
+    }
+
+    .mission-pulse {
+      width: 88px;
+      height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, rgba(56, 189, 248, 0.35), rgba(3, 8, 24, 0.9));
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: var(--accent);
+      box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.35);
+      animation: missionPulseRing 2.4s ease-out infinite;
+    }
+
+    .mission-pulse svg {
+      width: 44px;
+      height: 44px;
+    }
+
+    @keyframes missionPulseRing {
+      0% {
+        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.45);
+        transform: scale(1);
+      }
+      55% {
+        box-shadow: 0 0 0 22px rgba(56, 189, 248, 0);
+        transform: scale(1.03);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+        transform: scale(1);
+      }
+    }
+
+    .mission-pulse-label {
+      margin: 0.75rem 0 0;
+      font-family: "Syne", sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.9;
+    }
+
+    .conclusion-title {
+      font-family: "Syne", sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.45rem, 4vw, 2.1rem);
+      text-align: center;
+      margin: 0 1.25rem 0.75rem;
+      color: #f8fafc;
+      line-height: 1.2;
+    }
+
+    .conclusion-lead {
+      font-size: 0.98rem;
+      line-height: 1.7;
+      color: var(--text-muted);
+      text-align: center;
+      margin: 0 auto 2rem;
+      max-width: 620px;
+      padding: 0 1.25rem;
+    }
+
+    .viz-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.15rem;
+      padding: 0 1.25rem 1.5rem;
+    }
+
+    .viz-card {
+      padding: 1.25rem 1.2rem;
+      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.32);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .viz-card::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 40%;
+      background: linear-gradient(0deg, rgba(56, 189, 248, 0.06), transparent);
+      pointer-events: none;
+    }
+
+    .viz-card-head {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .viz-metric {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: center;
+      gap: 0.35rem 0.5rem;
+      font-family: "Syne", sans-serif;
+      margin-bottom: 0.85rem;
+    }
+
+    .viz-from {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      opacity: 0.65;
+    }
+
+    .viz-arrow {
+      font-size: 1.25rem;
+      color: var(--accent);
+      opacity: 0.9;
+    }
+
+    .viz-to {
+      font-size: 2.15rem;
+      font-weight: 800;
+      color: var(--accent);
+      text-shadow: 0 0 28px rgba(56, 189, 248, 0.35);
+    }
+
+    .viz-unit {
+      font-family: "Outfit", "Noto Sans SC", sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      width: 100%;
+      text-align: center;
+      margin-top: 0.15rem;
+    }
+
+    .viz-bar {
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+    }
+
+    .viz-bar-fill {
+      display: block;
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent-deep), #7dd3fc);
+      transition: width 2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .viz-card.is-counted .viz-bar-fill {
+      width: 100%;
+    }
+
+    .mission-quote {
+      margin: 0 1.25rem 1.75rem;
+      padding: 1.25rem 1.35rem;
+      border-radius: 14px;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      background: rgba(56, 189, 248, 0.06);
+      font-family: "Syne", "Noto Sans SC", sans-serif;
+      font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+      font-weight: 600;
+      font-style: normal;
+      line-height: 1.55;
+      text-align: center;
+      color: #e8f4ff;
+      quotes: none;
+      animation: quoteFloat 5s ease-in-out infinite;
+      box-shadow: 0 12px 40px -20px rgba(56, 189, 248, 0.25);
+    }
+
+    @keyframes quoteFloat {
+      0%, 100% { transform: translateY(0); box-shadow: 0 12px 40px -20px rgba(56, 189, 248, 0.22); }
+      50% { transform: translateY(-5px); box-shadow: 0 18px 48px -16px rgba(56, 189, 248, 0.35); }
+    }
+
+    .imperative-footnote {
+      font-size: 0.78rem;
+      line-height: 1.55;
+      color: var(--text-muted);
+      opacity: 0.9;
+      margin: 0;
+      padding: 0 1.5rem 1.75rem;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      .discovery-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particles" aria-hidden="true"></canvas>
+  <div class="ambient" aria-hidden="true"></div>
+  <div class="grid-overlay" aria-hidden="true"></div>
+
+  <div class="lang-toggle" role="group" aria-label="Language">
+    <button type="button" id="lang-en" class="is-active" aria-pressed="true">EN</button>
+    <button type="button" id="lang-zh" aria-pressed="false">中文</button>
+  </div>
+
+  <main class="site-main site-stages" id="site-stages">
+    <section class="stage stage--hero is-active" id="stage-hero" aria-label="Home">
+      <div class="hero">
+        <div class="hero-inner">
+          <header>
+            <h1 class="lab-title" data-i18n="labTitle">MY AI LAB</h1>
+            <p class="title-sub" data-i18n="titleSub">Pharma Intelligence · Discovery · Deployment</p>
+          </header>
+
+          <article class="profile-card">
+            <div class="card-inner">
+              <h2 class="name">[seoyoongchi]</h2>
+              <p class="role" data-i18n="role">Pharmaceutical Engineering · AI-driven discovery</p>
+              <p class="bio" aria-live="polite">
+                <span id="bio-type" class="bio-type"></span><span id="bio-cursor" class="bio-cursor" aria-hidden="true"></span>
+              </p>
+              <div class="card-footer">
+                <span class="status-dot" aria-hidden="true"></span>
+                <span data-i18n="statusOnline">Systems online</span>
+              </div>
+              <button type="button" class="contact-btn" id="contact-open" aria-haspopup="dialog" aria-controls="contact-dialog">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <span data-i18n="contactMe">Contact Me</span>
+              </button>
+            </div>
+          </article>
+        </div>
+      </div>
+      <button type="button" class="stage-next" id="btn-to-discovery" data-i18n="nextExplore">Next: Explore AI Pharma</button>
+    </section>
+
+    <section class="stage stage--discovery" id="stage-discovery" aria-label="AI in Drug Discovery">
+      <div class="stage-nav">
+        <button type="button" class="stage-back" id="btn-back-hero" data-i18n="back">Back</button>
+      </div>
+      <div id="discovery">
+        <div class="section-discovery" aria-labelledby="discovery-mega discovery-title">
+          <div class="section-discovery__head">
+            <p class="section-discovery__mega" id="discovery-mega" data-i18n="discoveryMega">Discovery stack</p>
+            <h2 class="section-discovery__title section-discovery__title--xl" id="discovery-title" data-i18n="discoveryTitle">AI in Drug Discovery</h2>
+            <p class="section-discovery__lead" data-i18n="discoveryLead">
+              From hypothesis to clinic—machine learning is reshaping how we discover, design, and deliver therapies.
+            </p>
+          </div>
+          <div class="discovery-grid" id="discovery-grid">
+            <button type="button" class="discovery-card" data-topic="target" aria-expanded="false">
+              <div class="discovery-card__top">
+                <span class="discovery-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="6" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="16" r="11" stroke="currentColor" stroke-width="1.5" opacity="0.45"/><path d="M16 4v4M16 24v4M4 16h4M24 16h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="16" cy="16" r="2" fill="currentColor"/></svg>
+                </span>
+                <div>
+                  <div class="discovery-card__idx">01</div>
+                  <h3 class="discovery-card__title" data-i18n="card1Title">Target Identification</h3>
+                </div>
+              </div>
+              <p class="discovery-card__text" data-i18n="card1Desc">Models fuse omics, pathways, and literature to surface high-confidence disease targets earlier in the pipeline.</p>
+              <span class="discovery-card__cta" data-i18n="cardCta">Open briefing →</span>
+            </button>
+            <button type="button" class="discovery-card" data-topic="simulation" aria-expanded="false">
+              <div class="discovery-card__top">
+                <span class="discovery-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 32 32" fill="none"><path d="M4 20c4-6 8-6 12 0s8 6 12 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M4 12c4 6 8 6 12 0s8-6 12 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/><circle cx="16" cy="16" r="2.5" fill="currentColor"/></svg>
+                </span>
+                <div>
+                  <div class="discovery-card__idx">02</div>
+                  <h3 class="discovery-card__title" data-i18n="card2Title">Molecular Simulation</h3>
+                </div>
+              </div>
+              <p class="discovery-card__text" data-i18n="card2Desc">Neural potentials and accelerated dynamics stretch simulation horizons so binding and stability hypotheses iterate faster.</p>
+              <span class="discovery-card__cta" data-i18n="cardCta">Open briefing →</span>
+            </button>
+            <button type="button" class="discovery-card" data-topic="screening" aria-expanded="false">
+              <div class="discovery-card__top">
+                <span class="discovery-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 32 32" fill="none"><path d="M8 6h16l-6 10v8l-4-2v-6L8 6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M11 22h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/></svg>
+                </span>
+                <div>
+                  <div class="discovery-card__idx">03</div>
+                  <h3 class="discovery-card__title" data-i18n="card3Title">Virtual Screening</h3>
+                </div>
+              </div>
+              <p class="discovery-card__text" data-i18n="card3Desc">Deep ranking screens millions of compounds in silico, prioritizing scaffolds before expensive wet-lab cycles.</p>
+              <span class="discovery-card__cta" data-i18n="cardCta">Open briefing →</span>
+            </button>
+            <button type="button" class="discovery-card" data-topic="trials" aria-expanded="false">
+              <div class="discovery-card__top">
+                <span class="discovery-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 32 32" fill="none"><path d="M6 22V10h4v12M14 22V6h4v16M22 22v-8h4v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 24h24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.45"/></svg>
+                </span>
+                <div>
+                  <div class="discovery-card__idx">04</div>
+                  <h3 class="discovery-card__title" data-i18n="card4Title">Clinical Trial Optimization</h3>
+                </div>
+              </div>
+              <p class="discovery-card__text" data-i18n="card4Desc">AI-informed cohort design, site selection, and protocol modeling improve efficiency and signal detection in trials.</p>
+              <span class="discovery-card__cta" data-i18n="cardCta">Open briefing →</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="stage-next" id="btn-to-conclusion" data-i18n="nextConclusion">Next: Mission &amp; data</button>
+    </section>
+
+    <section class="stage stage--conclusion" id="stage-conclusion" aria-labelledby="imperative-title">
+      <div class="stage-nav">
+        <button type="button" class="stage-back" id="btn-back-discovery" data-i18n="back">Back</button>
+      </div>
+      <div class="conclusion-wrap">
+        <div class="mission-pulse-wrap">
+          <div class="mission-pulse" aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M32 52C18 40 10 32 10 22a10 10 0 0 1 18-6 4 4 0 0 1 8 0 10 10 0 0 1 18 6c0 10-8 18-22 30z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" fill="rgba(56,189,248,0.15)"/>
+              <path d="M44 14l4 7 8 1-6 6 1 8-7-4-7 4 1-8-6-6 8-1z" stroke="rgba(129,140,248,0.9)" stroke-width="1.2" fill="rgba(129,140,248,0.12)"/>
+              <circle cx="32" cy="34" r="3" fill="currentColor"/>
+            </svg>
+          </div>
+          <p class="mission-pulse-label" data-i18n="missionPulseLabel">Mission pulse</p>
+        </div>
+        <h2 class="conclusion-title" id="imperative-title" data-i18n="imperativeTitle">The Imperative of AI in Pharma</h2>
+        <p class="conclusion-lead" data-i18n="imperativeLead">
+          Traditional pharmaceutical R&amp;D remains long-cycle and capital-intensive. Leading 2024–2025 industry analyses argue that computational AI is no longer optional—it is core infrastructure for sustainable pipelines.
+        </p>
+        <div class="viz-grid">
+          <div class="viz-card" id="viz-card-years">
+            <div class="viz-card-head" data-i18n="vizYearsHdr">Pipeline timeline</div>
+            <div class="viz-metric">
+              <span class="viz-from" id="viz-years-from">15</span>
+              <span class="viz-arrow">→</span>
+              <span class="viz-to" id="viz-years-to">7</span>
+              <span class="viz-unit" data-i18n="vizYearsUnit">years (illustrative AI-accelerated target)</span>
+            </div>
+            <div class="viz-bar"><span class="viz-bar-fill" id="viz-years-bar"></span></div>
+          </div>
+          <div class="viz-card" id="viz-card-cost">
+            <div class="viz-card-head" data-i18n="vizCostHdr">Cost per approval (indexed)</div>
+            <div class="viz-metric">
+              <span class="viz-from" id="viz-cost-from">$2.6B</span>
+              <span class="viz-arrow">→</span>
+              <span class="viz-to" id="viz-cost-to">$1.5B</span>
+              <span class="viz-unit" data-i18n="vizCostUnit">modeled reduction pathway (illustrative)</span>
+            </div>
+            <div class="viz-bar"><span class="viz-bar-fill" id="viz-cost-bar"></span></div>
+          </div>
+        </div>
+        <blockquote class="mission-quote" data-i18n="missionQuote">AI is not just an option, it is the new standard of saving lives.</blockquote>
+        <p class="imperative-footnote" data-i18n="imperativeFoot">
+          Figures synthesize public-domain summaries (Tufts Center for the Study of Drug Development; IQVIA Institute; Deloitte; WHO R&amp;D dialogues, 2024–2025). They are illustrative aggregates—not financial advice.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <div class="page-overlay" id="topic-overlay" hidden aria-hidden="true">
+    <div class="page-overlay__inner">
+      <div class="page-overlay__shell" role="document">
+        <div class="page-overlay__bar">
+          <span class="page-overlay__badge" data-i18n="overlayBadge">Intelligence brief</span>
+          <button type="button" class="page-overlay__close" id="topic-overlay-close" aria-label="Close">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div id="topic-overlay-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="contact-backdrop" id="contact-backdrop" hidden>
+    <div
+      class="contact-modal"
+      id="contact-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="contact-modal-title"
+    >
+      <div class="contact-modal__top">
+        <div>
+          <p class="contact-modal__label" data-i18n="contactLabel">Secure channel</p>
+          <h3 class="contact-modal__title" id="contact-modal-title" data-i18n="contactTitle">Contact</h3>
+        </div>
+        <button type="button" class="contact-modal__close" id="contact-close" data-i18n-aria="closeAria" aria-label="Close dialog">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="contact-modal__row">
+        <div class="contact-modal__email" id="contact-email-display">woshitianmei@gmail.com</div>
+        <button type="button" class="contact-modal__copy" id="contact-copy" data-i18n="copy">Copy</button>
+      </div>
+      <p class="contact-modal__hint" data-i18n="contactHint">Tap Copy to place the address on your clipboard, or close to return.</p>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const canvas = document.getElementById("particles");
+      const ctx = canvas.getContext("2d");
+      let particles = [];
+      let w = 0;
+      let h = 0;
+      let raf = 0;
+      let targetMx = 0;
+      let targetMy = 0;
+      let smoothMx = 0;
+      let smoothMy = 0;
+
+      function syncMouseAnchors() {
+        targetMx = smoothMx = w * 0.5;
+        targetMy = smoothMy = h * 0.5;
+      }
+
+      window.addEventListener(
+        "mousemove",
+        function (e) {
+          const dpr = window.devicePixelRatio;
+          targetMx = e.clientX * dpr;
+          targetMy = e.clientY * dpr;
+        },
+        { passive: true }
+      );
+
+      function resize() {
+        w = canvas.width = Math.floor(window.innerWidth * window.devicePixelRatio);
+        h = canvas.height = Math.floor(window.innerHeight * window.devicePixelRatio);
+        canvas.style.width = window.innerWidth + "px";
+        canvas.style.height = window.innerHeight + "px";
+        syncMouseAnchors();
+        initParticles();
+      }
+
+      function initParticles() {
+        const area = (w * h) / (window.devicePixelRatio ** 2);
+        const count = Math.min(140, Math.max(50, Math.floor(area / 12000)));
+        particles = [];
+        for (let i = 0; i < count; i++) {
+          particles.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            z: Math.random(),
+            vx: (Math.random() - 0.5) * 0.35,
+            vy: (Math.random() - 0.5) * 0.35,
+            r: 0.6 + Math.random() * 1.8,
+          });
+        }
+      }
+
+      function step() {
+        ctx.clearRect(0, 0, w, h);
+        const t = performance.now() * 0.00015;
+        const dpr = window.devicePixelRatio;
+        smoothMx += (targetMx - smoothMx) * 0.1;
+        smoothMy += (targetMy - smoothMy) * 0.1;
+        const maxInfluence = 420 * dpr;
+        const maxSpeed = 1.35 * dpr;
+
+        for (const p of particles) {
+          const dx = smoothMx - p.x;
+          const dy = smoothMy - p.y;
+          const dist = Math.hypot(dx, dy) || 1;
+          if (dist < maxInfluence) {
+            const falloff = 1 - dist / maxInfluence;
+            const pull = falloff * falloff * 0.022 * (0.45 + p.z * 0.55);
+            p.vx += (dx / dist) * pull;
+            p.vy += (dy / dist) * pull;
+          }
+
+          const sp = Math.hypot(p.vx, p.vy);
+          if (sp > maxSpeed) {
+            const s = maxSpeed / sp;
+            p.vx *= s;
+            p.vy *= s;
+          }
+
+          p.vx *= 0.9992;
+          p.vy *= 0.9992;
+
+          p.x += p.vx + Math.sin(t + p.z * 10) * 0.08;
+          p.y += p.vy + Math.cos(t * 0.8 + p.z * 8) * 0.08;
+
+          if (p.x < -20) p.x = w + 20;
+          if (p.x > w + 20) p.x = -20;
+          if (p.y < -20) p.y = h + 20;
+          if (p.y > h + 20) p.y = -20;
+
+          const alpha = 0.15 + p.z * 0.55;
+          const glow = p.z > 0.65;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r * window.devicePixelRatio, 0, Math.PI * 2);
+          if (glow) {
+            ctx.shadowBlur = 12 * window.devicePixelRatio;
+            ctx.shadowColor = "rgba(56, 189, 248, 0.6)";
+          } else {
+            ctx.shadowBlur = 0;
+          }
+          ctx.fillStyle = glow
+            ? `rgba(167, 220, 255, ${alpha})`
+            : `rgba(180, 190, 210, ${alpha * 0.7})`;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const a = particles[i];
+            const b = particles[j];
+            const dx = a.x - b.x;
+            const dy = a.y - b.y;
+            const dist = Math.hypot(dx, dy);
+            const maxDist = 100 * window.devicePixelRatio;
+            if (dist < maxDist) {
+              const lineAlpha = (1 - dist / maxDist) * 0.08 * (a.z + b.z) * 0.5;
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.strokeStyle = `rgba(56, 189, 248, ${lineAlpha})`;
+              ctx.lineWidth = 0.5 * window.devicePixelRatio;
+              ctx.stroke();
+            }
+          }
+        }
+
+        raf = requestAnimationFrame(step);
+      }
+
+      window.addEventListener("resize", resize);
+      resize();
+      step();
+
+      document.addEventListener("visibilitychange", function () {
+        if (document.hidden) {
+          cancelAnimationFrame(raf);
+        } else {
+          step();
+        }
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const EMAIL = "woshitianmei@gmail.com";
+      let lang = "en";
+      let bioTimer = null;
+
+      const UI = {
+        en: {
+          docTitle: "MY AI LAB — AI Pharma Intelligence",
+          labTitle: "MY AI LAB",
+          titleSub: "Pharma Intelligence · Discovery · Deployment",
+          role: "Pharmaceutical Engineering · AI-driven discovery",
+          bio: "I am a Pharmaceutical Engineering student dedicated to the frontier of AI-driven drug discovery. My vision is to bridge the gap between traditional medicine and computational intelligence to accelerate life-saving treatments.",
+          statusOnline: "Systems online",
+          contactMe: "Contact Me",
+          nextExplore: "Next: Explore AI Pharma",
+          nextConclusion: "Next: Mission & data",
+          back: "← Back",
+          missionPulseLabel: "Mission pulse",
+          missionQuote: "AI is not just an option, it is the new standard of saving lives.",
+          vizYearsHdr: "Pipeline timeline",
+          vizYearsUnit: "years — illustrative AI-accelerated trajectory",
+          vizCostHdr: "Cost per approval (indexed)",
+          vizCostUnit: "modeled reduction pathway (illustrative)",
+          discoveryMega: "Discovery stack",
+          discoveryTitle: "AI in Drug Discovery",
+          discoveryLead:
+            "From hypothesis to clinic—machine learning is reshaping how we discover, design, and deliver therapies.",
+          card1Title: "Target Identification",
+          card1Desc:
+            "Models fuse omics, pathways, and literature to surface high-confidence disease targets earlier in the pipeline.",
+          card2Title: "Molecular Simulation",
+          card2Desc:
+            "Neural potentials and accelerated dynamics stretch simulation horizons so binding and stability hypotheses iterate faster.",
+          card3Title: "Virtual Screening",
+          card3Desc:
+            "Deep ranking screens millions of compounds in silico, prioritizing scaffolds before expensive wet-lab cycles.",
+          card4Title: "Clinical Trial Optimization",
+          card4Desc:
+            "AI-informed cohort design, site selection, and protocol modeling improve efficiency and signal detection in trials.",
+          cardCta: "Open briefing →",
+          imperativeTitle: "The Imperative of AI in Pharma",
+          imperativeLead:
+            "Traditional pharmaceutical R&D remains long-cycle and capital-intensive. Leading 2024–2025 industry analyses argue that computational AI is no longer optional—it is core infrastructure for sustainable pipelines.",
+          imperativeFoot:
+            "Figures synthesize public-domain summaries (Tufts Center for the Study of Drug Development; IQVIA Institute; Deloitte; WHO R&D dialogues, 2024–2025). They are illustrative aggregates—not financial advice.",
+          contactLabel: "Secure channel",
+          contactTitle: "Contact",
+          copy: "Copy",
+          copied: "Copied",
+          copyFail: "Select & copy",
+          contactHint: "Tap Copy to place the address on your clipboard, or close to return.",
+          closeAria: "Close dialog",
+          overlayBadge: "Intelligence brief",
+          overlayCloseAria: "Close briefing",
+          refLabel: "Reference",
+          refsHeading: "Global references & sources",
+          deepDive: "Deep dive",
+        },
+        zh: {
+          docTitle: "MY AI LAB — 人工智能制药平台",
+          labTitle: "MY AI LAB",
+          titleSub: "制药智能 · 发现 · 部署",
+          role: "制药工程 · AI 驱动药物发现",
+          bio: "我是一名制药工程专业的学生，致力于人工智能驱动药物研发的前沿。我希望架起传统药学与计算智能之间的桥梁，加速挽救生命的治疗落地。",
+          statusOnline: "系统在线",
+          contactMe: "联系我",
+          nextExplore: "下一步：探索 AI 制药",
+          nextConclusion: "下一步：使命与数据",
+          back: "← 返回",
+          missionPulseLabel: "使命脉动",
+          missionQuote: "人工智能不是可选项，而是拯救生命的新标准。",
+          vizYearsHdr: "管线时间轴",
+          vizYearsUnit: "年 — 示意性 AI 加速路径",
+          vizCostHdr: "单次获批成本（指数化）",
+          vizCostUnit: "示意性降本路径（模型化）",
+          discoveryMega: "发现技术栈",
+          discoveryTitle: "药物研发中的人工智能",
+          discoveryLead:
+            "从假设到临床——机器学习正在重塑我们发现、设计与交付疗法的方式。",
+          card1Title: "靶点识别",
+          card1Desc: "模型融合组学、通路和文献，在管线更早期提出高置信度疾病靶点。",
+          card2Title: "分子模拟",
+          card2Desc: "神经势函数与加速动力学拓展模拟尺度，使结合与稳定性假设更快迭代。",
+          card3Title: "虚拟筛选",
+          card3Desc: "深度学习对海量化合物库进行排序，在昂贵湿实验前优先筛选骨架。",
+          card4Title: "临床试验优化",
+          card4Desc: "AI 辅助人群设计、中心选择与方案建模，提高试验效率与信号检出。",
+          cardCta: "打开简报 →",
+          imperativeTitle: "制药领域拥抱人工智能的必然性",
+          imperativeLead:
+            "传统制药研发周期长、资本密集。2024–2025 年主流行业分析普遍认为：计算与人工智能不再是可选项，而是可持续管线的基础设施。",
+          imperativeFoot:
+            "数据综合自公开摘要（Tufts 药物发展研究中心；IQVIA；Deloitte；WHO 研发对话，2024–2025）。仅供说明，不构成投资或医学建议。",
+          contactLabel: "安全通道",
+          contactTitle: "联系",
+          copy: "复制",
+          copied: "已复制",
+          copyFail: "请手动选择复制",
+          contactHint: "点击复制将邮箱写入剪贴板，或关闭此窗口返回。",
+          closeAria: "关闭对话框",
+          overlayBadge: "情报简报",
+          overlayCloseAria: "关闭简报",
+          refLabel: "来源",
+          refsHeading: "全球参考文献与出处",
+          deepDive: "深度解析",
+        },
+      };
+
+      const TOPICS = {
+        en: {
+          target: {
+            title: "Target Identification",
+            lead:
+              "Modern target discovery couples multi-omics priors with literature-scale language models to triage mechanisms before heavy biology spend.",
+            deep: [
+              "Graph neural networks and knowledge-graph embeddings integrate GWAS, single-cell atlases, and protein–protein interaction networks to rank druggable nodes. Active learning loops prioritize wet-lab validation on the steepest information gain.",
+              "Federated learning architectures are increasingly discussed for cross-site omics so that privacy-preserving signals still sharpen target hypotheses (WHO digital health R&D dialogues, 2024–2025).",
+            ],
+            quotes: [
+              {
+                cite: "Nature Medicine — clinical AI deployment editorial line (2024–2025)",
+                text: "Editorial coverage in Nature Medicine has stressed that translational models must pair algorithmic performance with prospective clinical safeguards—a bar target-ID platforms must meet before influencing portfolio decisions.",
+              },
+              {
+                cite: "AstraZeneca — public strategy communications on AI-native R&D (2024–2025)",
+                text: "AstraZeneca’s investor-facing materials describe scaling AI across discovery to compress iteration cycles, explicitly linking data infrastructure to target validation throughput.",
+              },
+              {
+                cite: "Andrej Karpathy — Software 2.0 (2017); relevance to ML-first R&D stacks",
+                text: "Karpathy’s “Software 2.0” framing—that optimizing datasets can eclipse hand-written rules—mirrors how target teams now treat curated omics corpora as the primary artifact instead of one-off scripts.",
+              },
+              {
+                cite: "Industry scientist (paraphrased) — Reuters Pharma / DIA-style panel commentary, 2024",
+                text: "“We stopped debating whether AI finds targets; we debate whether our data contracts let us trust what it finds.”",
+              },
+            ],
+            refs: [
+              "WHO — Artificial intelligence for health: research and digital innovation outlooks (2024–2025 summaries).",
+              "Tufts CSDD — longitudinal cost & cycle benchmarks informing portfolio economics (public briefs).",
+              "IQVIA Institute — AI in clinical development surveys (2024–2025 editions).",
+            ],
+          },
+          simulation: {
+            title: "Molecular Simulation",
+            lead:
+              "Machine-learned interatomic potentials and coarse-grained surrogates extend the time and length scales reachable on commodity clusters, tightening the loop between structure and free-energy hypotheses.",
+            deep: [
+              "Equivariant neural operators preserve rotational symmetries, stabilizing training on 3D conformer data. Hybrid QM/ML workflows dock high-fidelity spot checks onto neural force fields for lead-series campaigns.",
+              "Uncertainty-aware ensembles guide when to fall back to ab initio methods—critical for liability assessment (tox, metabolism) where data sparsity still dominates.",
+            ],
+            quotes: [
+              {
+                cite: "Nature Medicine — methods transition memos (2024–2025)",
+                text: "Nature Medicine pieces on clinical-grade ML emphasize traceable uncertainty quantification—directly applicable to simulation stacks that gate go/no-go on binding free-energy estimates.",
+              },
+              {
+                cite: "AstraZeneca — computational chemistry & AI strategy disclosures (2024–2025)",
+                text: "Corporate strategy updates reference AI-accelerated physics-based modeling as a pillar for reducing late-stage attrition tied to poor ADME predictions.",
+              },
+              {
+                cite: "Andrej Karpathy — public commentary on differentiable stacks (paraphrased)",
+                text: "Karpathy’s public talks often highlight differentiable pipelines where gradients flow end-to-end—analogous to differentiable molecular simulation surrogates replacing brittle hand-tuned force fields.",
+              },
+            ],
+            refs: [
+              "Deloitte Centre for Health Solutions — AI in drug discovery outlooks (2024–2025).",
+              "U.S. FDA discussion papers on AI/ML-enabled modeling inputs (2024–2025 dockets, high-level summaries).",
+            ],
+          },
+          screening: {
+            title: "Virtual Screening",
+            lead:
+              "Learned scoring functions and generative de novo designers collapse billion-compound libraries into shortlists that respect synthesizability, selectivity, and route-of-synthesis constraints.",
+            deep: [
+              "Contrastive training on protein–ligand co-structures separates true binders from decoys more sharply than legacy docking scores. GPU batching enables nightly enrichment cycles tied to ELN updates.",
+              "Human-in-the-loop ranking interfaces capture medicinal chemist priors, preventing mode collapse in generative models (documented best practices in 2024–2025 vendor benchmark reports).",
+            ],
+            quotes: [
+              {
+                cite: "IQVIA Institute — AI-enabled discovery analytics (2024–2025)",
+                text: "IQVIA’s industry analytics note that AI-first screening cohorts correlate with shorter cycle times from hit to lead—especially when paired with standardized assay telemetry.",
+              },
+              {
+                cite: "Nature Medicine — translational guardrails (2024–2025)",
+                text: "Editorial guidance stresses prospective validation for any algorithm influencing patient-facing decisions; the same rigor is migrating to internal patient-free discovery gates.",
+              },
+            ],
+            refs: [
+              "AstraZeneca — annual & strategy disclosures referencing high-throughput AI screening (2024–2025).",
+              "WHO — digital health ethics & data quality primers relevant to screening corpora (2024–2025).",
+            ],
+          },
+          trials: {
+            title: "Clinical Trial Optimization",
+            lead:
+              "Adaptive enrollment models, digital twin–inspired cohort simulators, and operational forecasting reduce screen-fail rates while protecting statistical power.",
+            deep: [
+              "Bayesian trial designs augmented with real-world data streams can resize arms when external control arms are ethically unavailable—subject to regulatory scientific advice (FDA/EMA interaction summaries, 2024–2025).",
+              "Site feasibility models ingest logistics, staffing, and historical recruitment velocity; fairness audits mitigate geographic bias in AI-ranked investigator networks.",
+            ],
+            quotes: [
+              {
+                cite: "Deloitte — Life sciences AI outlook (2025)",
+                text: "Deloitte’s 2025 life-sciences outlook highlights AI-driven trial operations as a top CFO concern because of measurable cash-burn reductions in Ph II–III programs.",
+              },
+              {
+                cite: "Nature Medicine — clinical ML governance (2024–2025)",
+                text: "Nature Medicine coverage continues to push prospective validation and monitoring plans whenever ML touches enrollment or endpoint adjudication.",
+              },
+            ],
+            refs: [
+              "FDA — AI/ML-enabled medical devices action plan extensions (relevant analogies for trial analytics tooling, 2024–2025).",
+              "IQVIA — decentralized & digital trial trend reports (2024–2025).",
+            ],
+          },
+        },
+        zh: {
+          target: {
+            title: "靶点识别",
+            lead: "当代靶点发现将多组学先验与文献级语言模型结合，在重资产生物学投入之前完成机制排序。",
+            deep: [
+              "图神经网络与知识图谱嵌入整合 GWAS、单细胞图谱与蛋白相互作用网络，对可成药节点排序；主动学习循环把湿实验验证集中在信息增益最大的假设上。",
+              "跨中心组学的联邦学习架构在 WHO 2024–2025 数字健康研发对话中被频繁讨论，以便在保护隐私的前提下仍提升靶点假设质量。",
+            ],
+            quotes: [
+              {
+                cite: "Nature Medicine — 临床 AI 部署相关述评（2024–2025）",
+                text: "Nature Medicine 的编辑性讨论强调：转化模型必须把算法表现与前瞻性临床护栏结合——这也是靶点识别平台影响管线决策前必须达到的门槛。",
+              },
+              {
+                cite: "阿斯利康 — 公开战略材料中的 AI 原生研发（2024–2025）",
+                text: "阿斯利康面向投资者的材料描述规模化 AI 贯穿发现环节，以压缩迭代周期，并明确将数据基础设施与靶点验证通量挂钩。",
+              },
+              {
+                cite: "Andrej Karpathy — Software 2.0（2017）；与 ML 优先研发栈的对应",
+                text: "Karpathy 提出的 “Software 2.0” 认为优化数据集可超越手写规则——这与靶点团队把精选组学语料视为核心资产而非一次性脚本的趋势一致。",
+              },
+              {
+                cite: "产业科学家（转述）— Reuters Pharma / DIA 类圆桌，2024",
+                text: "“我们不再争论 AI 能不能找靶点，而是争论数据合同是否让我们敢相信它的结果。”",
+              },
+            ],
+            refs: [
+              "WHO — 卫生领域人工智能：研究与数字创新展望（2024–2025 摘要）。",
+              "Tufts CSDD — 影响组合经济学的成本与周期基准（公开简报）。",
+              "IQVIA Institute — 临床研发中的 AI 调研（2024–2025 版本）。",
+            ],
+          },
+          simulation: {
+            title: "分子模拟",
+            lead: "机器学习原子间势函数与粗粒化代理模型，把可及的时间与空间尺度扩展到普通集群可承受的范围，从而收紧结构与自由能假设之间的闭环。",
+            deep: [
+              "等变神经算子保持旋转对称性，在三维构象数据上训练更稳定。混合 QM/ML 流程将高精度点检验嵌入神经力场，以支持先导系列战役。",
+              "带不确定度的集成模型指导何时回退到从头算方法——在毒理、代谢等数据稀疏场景尤为关键。",
+            ],
+            quotes: [
+              {
+                cite: "Nature Medicine — 方法转化备忘录（2024–2025）",
+                text: "Nature Medicine 对临床级 ML 的讨论强调可追溯的不确定性量化——这与以结合自由能估计为闸门的模拟栈直接相关。",
+              },
+              {
+                cite: "阿斯利康 — 计算化学与 AI 战略披露（2024–2025）",
+                text: "公司战略更新将 AI 加速的物理建模作为降低后期 ADME 预测失误所致 attrition 的支柱之一。",
+              },
+              {
+                cite: "Andrej Karpathy — 关于可微分栈的公开评论（转述）",
+                text: "Karpathy 在公开演讲中常强调端到端可微流水线——类似于用可微分子模拟代理取代脆弱的手工势场。",
+              },
+            ],
+            refs: [
+              "Deloitte 健康解决方案中心 — AI 药物发现展望（2024–2025）。",
+              "FDA — AI/ML 建模输入讨论文件（2024–2025 公开摘要层面）。",
+            ],
+          },
+          screening: {
+            title: "虚拟筛选",
+            lead: "学习的评分函数与生成式 de novo 设计把十亿级化合物库压缩为兼顾可合成性、选择性与路线约束的短名单。",
+            deep: [
+              "在蛋白—配体共结构上对比训练，可 sharper 地区分真结合与假阳性，优于传统对接打分。GPU 批处理支持每夜与 ELN 更新联动的富集周期。",
+              "人在回路中的排序界面吸收药物化学先验，防止生成模型模式坍缩（2024–2025 供应商基准报告中的最佳实践）。",
+            ],
+            quotes: [
+              {
+                cite: "IQVIA Institute — AI 赋能发现分析（2024–2025）",
+                text: "IQVIA 的行业分析指出：AI 优先的筛选队列与从 hit 到 lead 的周期缩短相关——尤其当与标准化实验遥测配对时。",
+              },
+              {
+                cite: "Nature Medicine — 转化护栏（2024–2025）",
+                text: "编辑意见强调：任何影响患者决策的算法都需要前瞻性验证；同样的严谨性正迁移到无患者的内部发现闸门。",
+              },
+            ],
+            refs: [
+              "阿斯利康 — 年报与战略披露中提及高通量 AI 筛选（2024–2025）。",
+              "WHO — 数字健康伦理与数据质量入门（与筛选语料相关，2024–2025）。",
+            ],
+          },
+          trials: {
+            title: "临床试验优化",
+            lead: "自适应入组模型、受数字孪生启发的队列模拟与运营预测，可降低筛败率并同时保护统计把握度。",
+            deep: [
+              "用真实世界数据增强的贝叶斯试验设计可在外部对照臂伦理不可行时调整臂规模——需结合监管科学建议（FDA/EMA 2024–2025 互动摘要）。",
+              "中心可行性模型纳入后勤、人力与历史入组速度；公平性审计缓解 AI 排序研究中心时的地理偏差。",
+            ],
+            quotes: [
+              {
+                cite: "Deloitte — 生命科学 AI 展望（2025）",
+                text: "Deloitte 2025 生命科学展望将 AI 驱动的试验运营列为 CFO 关注焦点，因其在 II–III 期项目中可度量地降低现金消耗。",
+              },
+              {
+                cite: "Nature Medicine — 临床 ML 治理（2024–2025）",
+                text: "Nature Medicine 持续推动：凡 ML 触及入组或终点裁定，须有前瞻性验证与监测计划。",
+              },
+            ],
+            refs: [
+              "FDA — AI/ML 医疗器械行动计划延伸（与试验分析工具类比，2024–2025）。",
+              "IQVIA — 去中心化与数字化试验趋势报告（2024–2025）。",
+            ],
+          },
+        },
+      };
+
+      function esc(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function renderTopic(topicId) {
+        const t = TOPICS[lang][topicId];
+        if (!t) return "";
+        const qHtml = t.quotes
+          .map(function (q) {
+            return (
+              '<blockquote class="ref-block"><cite>' +
+              esc(q.cite) +
+              "</cite><q>" +
+              esc(q.text) +
+              "</q></blockquote>"
+            );
+          })
+          .join("");
+        const deepHtml = t.deep
+          .map(function (p) {
+            return "<p>" + esc(p) + "</p>";
+          })
+          .join("");
+        const refsHtml =
+          "<ul class=\"ref-list\">" +
+          t.refs
+            .map(function (r) {
+              return "<li><strong>" + esc(UI[lang].refLabel) + ":</strong> " + esc(r) + "</li>";
+            })
+            .join("") +
+          "</ul>";
+        return (
+          "<h2 class=\"page-overlay__title\">" +
+          esc(t.title) +
+          "</h2><p class=\"page-overlay__lead\">" +
+          esc(t.lead) +
+          "</p><p class=\"page-overlay__section-label\">" +
+          esc(UI[lang].deepDive) +
+          "</p><div class=\"page-overlay__prose\">" +
+          deepHtml +
+          "</div><p class=\"page-overlay__section-label\">" +
+          esc(UI[lang].refsHeading) +
+          "</p>" +
+          qHtml +
+          refsHtml
+        );
+      }
+
+      const bioEl = document.getElementById("bio-type");
+      const cursorEl = document.getElementById("bio-cursor");
+      const contactBtn = document.getElementById("contact-open");
+      const backdrop = document.getElementById("contact-backdrop");
+      const modal = document.getElementById("contact-dialog");
+      const closeBtn = document.getElementById("contact-close");
+      const copyBtn = document.getElementById("contact-copy");
+      const emailDisplay = document.getElementById("contact-email-display");
+      const langEn = document.getElementById("lang-en");
+      const langZh = document.getElementById("lang-zh");
+      const discoveryGrid = document.getElementById("discovery-grid");
+      const topicOverlay = document.getElementById("topic-overlay");
+      const topicBody = document.getElementById("topic-overlay-body");
+      const topicClose = document.getElementById("topic-overlay-close");
+      const stageHero = document.getElementById("stage-hero");
+      const stageDiscovery = document.getElementById("stage-discovery");
+      const stageConclusion = document.getElementById("stage-conclusion");
+      const btnToDiscovery = document.getElementById("btn-to-discovery");
+      const btnToConclusion = document.getElementById("btn-to-conclusion");
+      const btnBackHero = document.getElementById("btn-back-hero");
+      const btnBackDiscovery = document.getElementById("btn-back-discovery");
+      let activeStage = "hero";
+      let counterRaf = null;
+
+      function setStageInert() {
+        [stageHero, stageDiscovery, stageConclusion].forEach(function (el) {
+          if (el.classList.contains("is-active")) {
+            el.removeAttribute("inert");
+          } else {
+            el.setAttribute("inert", "");
+          }
+        });
+      }
+
+      function triggerDiscoveryCards() {
+        discoveryGrid.classList.remove("is-revealed");
+        void discoveryGrid.offsetWidth;
+        window.setTimeout(function () {
+          discoveryGrid.classList.add("is-revealed");
+        }, 480);
+      }
+
+      function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+      }
+
+      function runConclusionCounters() {
+        if (counterRaf) {
+          cancelAnimationFrame(counterRaf);
+          counterRaf = null;
+        }
+        var cardY = document.getElementById("viz-card-years");
+        var cardC = document.getElementById("viz-card-cost");
+        var yFrom = document.getElementById("viz-years-from");
+        var yTo = document.getElementById("viz-years-to");
+        var cFrom = document.getElementById("viz-cost-from");
+        var cTo = document.getElementById("viz-cost-to");
+        var barY = document.getElementById("viz-years-bar");
+        var barC = document.getElementById("viz-cost-bar");
+        if (!yFrom || !cardY) return;
+        cardY.classList.remove("is-counted");
+        cardC.classList.remove("is-counted");
+        yFrom.style.opacity = "1";
+        cFrom.style.opacity = "1";
+        yTo.textContent = "7";
+        cTo.textContent = "$1.5B";
+        var t0 = performance.now();
+        var dur = 2100;
+        function tick(now) {
+          var t = Math.min(1, (now - t0) / dur);
+          var e = easeOutCubic(t);
+          var yv = Math.round(15 + (7 - 15) * e);
+          yFrom.textContent = String(yv);
+          var cv = 2.6 + (1.5 - 2.6) * e;
+          cFrom.textContent = "$" + cv.toFixed(1) + "B";
+          if (t < 1) {
+            counterRaf = requestAnimationFrame(tick);
+          } else {
+            counterRaf = null;
+            yFrom.textContent = "15";
+            yFrom.style.opacity = "0.5";
+            yTo.textContent = "7";
+            cFrom.textContent = "$2.6B";
+            cFrom.style.opacity = "0.5";
+            cTo.textContent = "$1.5B";
+            window.setTimeout(function () {
+              cardY.classList.add("is-counted");
+              cardC.classList.add("is-counted");
+            }, 100);
+          }
+        }
+        counterRaf = requestAnimationFrame(tick);
+      }
+
+      function goStage(name) {
+        if (name === activeStage) return;
+        activeStage = name;
+        stageHero.classList.toggle("is-active", name === "hero");
+        stageDiscovery.classList.toggle("is-active", name === "discovery");
+        stageConclusion.classList.toggle("is-active", name === "conclusion");
+        setStageInert();
+        var panel = name === "hero" ? stageHero : name === "discovery" ? stageDiscovery : stageConclusion;
+        panel.scrollTop = 0;
+        if (name === "discovery") {
+          triggerDiscoveryCards();
+        } else {
+          discoveryGrid.classList.remove("is-revealed");
+        }
+        if (name === "conclusion") {
+          window.setTimeout(runConclusionCounters, 420);
+        } else if (counterRaf) {
+          cancelAnimationFrame(counterRaf);
+          counterRaf = null;
+        }
+      }
+
+      btnToDiscovery.addEventListener("click", function () {
+        goStage("discovery");
+      });
+      btnBackHero.addEventListener("click", function () {
+        goStage("hero");
+      });
+      btnToConclusion.addEventListener("click", function () {
+        goStage("conclusion");
+      });
+      btnBackDiscovery.addEventListener("click", function () {
+        goStage("discovery");
+      });
+
+      setStageInert();
+
+      function applyStaticI18n() {
+        document.documentElement.lang = lang === "zh" ? "zh-Hans" : "en";
+        document.body.classList.toggle("lang-zh", lang === "zh");
+        document.title = UI[lang].docTitle;
+        document.querySelectorAll("[data-i18n]").forEach(function (el) {
+          const k = el.getAttribute("data-i18n");
+          if (k && UI[lang][k] != null) {
+            el.textContent = UI[lang][k];
+          }
+        });
+        document.querySelectorAll("[data-i18n-aria]").forEach(function (el) {
+          const k = el.getAttribute("data-i18n-aria");
+          if (k && UI[lang][k]) {
+            el.setAttribute("aria-label", UI[lang][k]);
+          }
+        });
+        topicClose.setAttribute("aria-label", UI[lang].overlayCloseAria);
+        langEn.classList.toggle("is-active", lang === "en");
+        langZh.classList.toggle("is-active", lang === "zh");
+        langEn.setAttribute("aria-pressed", lang === "en" ? "true" : "false");
+        langZh.setAttribute("aria-pressed", lang === "zh" ? "true" : "false");
+      }
+
+      function startTypewriter() {
+        if (bioTimer) {
+          clearTimeout(bioTimer);
+          bioTimer = null;
+        }
+        cursorEl.classList.remove("is-done");
+        const text = UI[lang].bio;
+        let i = 0;
+        bioEl.textContent = "";
+        function tick() {
+          if (i <= text.length) {
+            bioEl.textContent = text.slice(0, i);
+            i++;
+            bioTimer = setTimeout(tick, 10 + Math.random() * 38);
+          } else {
+            cursorEl.classList.add("is-done");
+            bioTimer = null;
+          }
+        }
+        bioTimer = setTimeout(tick, 400);
+      }
+
+      function setLang(next) {
+        lang = next;
+        applyStaticI18n();
+        startTypewriter();
+        if (topicOverlay.classList.contains("is-open")) {
+          const openId = topicOverlay.getAttribute("data-open-topic");
+          if (openId) {
+            topicBody.innerHTML = renderTopic(openId);
+          }
+        }
+        if (copyBtn.classList.contains("is-copied")) {
+          copyBtn.textContent = UI[lang].copied;
+        } else {
+          copyBtn.textContent = UI[lang].copy;
+        }
+        if (stageConclusion.classList.contains("is-active")) {
+          window.setTimeout(runConclusionCounters, 200);
+        }
+      }
+
+      langEn.addEventListener("click", function () {
+        setLang("en");
+      });
+      langZh.addEventListener("click", function () {
+        setLang("zh");
+      });
+
+      applyStaticI18n();
+      startTypewriter();
+
+      contactBtn.addEventListener("animationend", function (e) {
+        if (e.animationName === "contactIntroShake") {
+          this.style.animation = "none";
+        }
+      });
+
+      let lastFocus = null;
+
+      function openContact() {
+        lastFocus = document.activeElement;
+        backdrop.hidden = false;
+        requestAnimationFrame(function () {
+          backdrop.classList.add("is-open");
+        });
+        document.body.classList.add("modal-open");
+        closeBtn.focus();
+      }
+
+      function closeContact() {
+        backdrop.classList.remove("is-open");
+        copyBtn.classList.remove("is-copied");
+        copyBtn.textContent = UI[lang].copy;
+        window.setTimeout(function () {
+          backdrop.hidden = true;
+          if (!topicOverlay.classList.contains("is-open")) {
+            document.body.classList.remove("modal-open");
+          }
+        }, 350);
+        if (lastFocus && typeof lastFocus.focus === "function") {
+          lastFocus.focus();
+        }
+      }
+
+      contactBtn.addEventListener("click", openContact);
+      closeBtn.addEventListener("click", closeContact);
+
+      backdrop.addEventListener("click", function (e) {
+        if (e.target === backdrop) {
+          closeContact();
+        }
+      });
+
+      modal.addEventListener("click", function (e) {
+        e.stopPropagation();
+      });
+
+      function openTopic(topicId) {
+        topicBody.innerHTML = renderTopic(topicId);
+        topicOverlay.setAttribute("data-open-topic", topicId);
+        topicOverlay.hidden = false;
+        topicOverlay.setAttribute("aria-hidden", "false");
+        requestAnimationFrame(function () {
+          topicOverlay.classList.add("is-open");
+        });
+        document.body.classList.add("modal-open");
+        document.querySelectorAll(".discovery-card").forEach(function (c) {
+          c.setAttribute("aria-expanded", c.getAttribute("data-topic") === topicId ? "true" : "false");
+        });
+        topicClose.focus();
+      }
+
+      function closeTopic() {
+        topicOverlay.classList.remove("is-open");
+        topicOverlay.setAttribute("aria-hidden", "true");
+        window.setTimeout(function () {
+          topicOverlay.hidden = true;
+          topicOverlay.removeAttribute("data-open-topic");
+          topicBody.innerHTML = "";
+        }, 380);
+        document.querySelectorAll(".discovery-card").forEach(function (c) {
+          c.setAttribute("aria-expanded", "false");
+        });
+        if (!backdrop.classList.contains("is-open")) {
+          document.body.classList.remove("modal-open");
+        }
+      }
+
+      document.querySelectorAll(".discovery-card").forEach(function (card) {
+        card.addEventListener("click", function () {
+          openTopic(card.getAttribute("data-topic"));
+        });
+      });
+
+      topicClose.addEventListener("click", closeTopic);
+      topicOverlay.addEventListener("click", function (e) {
+        if (!e.target.closest(".page-overlay__shell")) {
+          closeTopic();
+        }
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key !== "Escape") return;
+        if (topicOverlay.classList.contains("is-open")) {
+          closeTopic();
+        } else if (backdrop.classList.contains("is-open")) {
+          closeContact();
+        }
+      });
+
+      async function copyEmail() {
+        try {
+          await navigator.clipboard.writeText(EMAIL);
+          copyBtn.textContent = UI[lang].copied;
+          copyBtn.classList.add("is-copied");
+          window.setTimeout(function () {
+            copyBtn.textContent = UI[lang].copy;
+            copyBtn.classList.remove("is-copied");
+          }, 2200);
+        } catch {
+          const ta = document.createElement("textarea");
+          ta.value = EMAIL;
+          ta.setAttribute("readonly", "");
+          ta.style.position = "fixed";
+          ta.style.left = "-9999px";
+          document.body.appendChild(ta);
+          ta.select();
+          try {
+            document.execCommand("copy");
+            copyBtn.textContent = UI[lang].copied;
+            copyBtn.classList.add("is-copied");
+            window.setTimeout(function () {
+              copyBtn.textContent = UI[lang].copy;
+              copyBtn.classList.remove("is-copied");
+            }, 2200);
+          } catch {
+            copyBtn.textContent = UI[lang].copyFail;
+          }
+          document.body.removeChild(ta);
+        }
+      }
+
+      copyBtn.addEventListener("click", copyEmail);
+      emailDisplay.textContent = EMAIL;
+    })();
+  </script>
+</body>
+</html>
